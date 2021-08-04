@@ -1,0 +1,308 @@
+<!--
+   QUICK CUSTOMIZATION:
+
+	SHOW ONLY OPEN SECTIONS (to print all sections, regardless of whether they are opened, set to false)
+		{% assign show_open_only = false %}
+
+	SECTIONS TO PRINT (to ignore open/closed status and predefine which sections to print, please set show_open_only above to false, and then set these sections accordingly)
+		{% assign print_titles = true %}
+		{% assign print_people = true %}
+
+	CATEGORIES TO PRINT
+		TO PRINT ONLY SELECTED CATEGORIES SET THESE TO false
+		{% assign all_people_categories = false %}
+		{% assign all_plan_notes_categories = true %}
+
+		AND SET INDIVIDUAL CATEGORY NAMES TO PRINT (make sure show_open_only is set correctly above)
+"OS AM PRODUCTION REDESIGN 2019", "OS PM PRODUCTION REDESIGN 2019", "BR AM PRODUCTION REDESIGN 2019", "BR PM PRODUCTION REDESIGN 2019", "COURTFIELD GARDENS PRODUCTION REDESIGN 2019", "QUEENS GATE PRODUCTION REDESIGN 2019", "DIGITAL CAMPUS PRODUCTION" %}
+		array my_people_categories = "Production", "OS PM PRODUCTION REDESIGN 2019", "DIGITAL CAMPUS PRODUCTION" 
+		{% array my_people_categories = "Production", "OS AM PRODUCTION REDESIGN 2019", "OS PM PRODUCTION REDESIGN 2019", "BR AM PRODUCTION REDESIGN 2019", "BR PM PRODUCTION REDESIGN 2019", "DIGITAL CAMPUS PRODUCTION"%}
+-->
+
+<html>
+	<head>
+		<title>Plans Report</title>
+		<style>
+			* { font-family: Verdana, Arial; font-size: 10pt; }
+			body { padding:0; margin:0; }
+			td { vertical-align: top; }
+			
+			.matrix { border: solid 1px black; border-collapse: collapse; }
+			.matrix td { border: solid 1px black; padding: 2px;}
+			.ministry_name { font-weight: bold; font-size: 12pt; text-align: center; background-color: black; color: white; } 
+			.plan_dates { font-weight: bold; font-size: 10pt; text-align: center; background-color:black; color: white;}
+			.series_title { font-weight: bold; font-size: 10pt; text-align: center; }
+			.plan_title { font-size: 10pt; text-align: center; }
+			.section_header { background-color: #666; color: white; font-weight: bold; font-size: 10pt; }
+			.item { border-bottom: dotted 1px #999; }
+			.header { font-weight: bold; border-bottom: solid 1px black; }
+			.song { font-style: italic; }
+			.media {  }
+			.row_header { background-color: #DDD; font-weight: bold; }
+
+			.unconfirmed { color: gray; }
+			.declined { color: gray; text-decoration: line-through; }
+          
+          	.icon-question{
+              display: inline-block;
+              color: #fff;
+              text-align: center;
+              font-size: 1em;
+              background: #666;
+              border-radius: 50%;
+              width: 1em;
+              height: 1em;
+              line-height: 1em;
+              padding: .1em;
+            }
+          
+        </style>
+    </head>
+
+    <body>
+		<table width="100%" class="matrix">
+
+			<!-- MINISTRY NAME -->
+			<tr>
+				<td class="ministry_name"></td>
+				{% for plan in plans %}
+					<td class="ministry_name">{{ plan.ministry.name }}</td>
+					{% assign number_of_columns = forloop.index %}
+				{% endfor %}
+			</tr>
+			<!-- END MINISTRY NAME -->
+
+
+			<!-- PLAN DATES -->
+			<tr>
+				<td class="plan_dates"></td>
+				{% for plan in plans %}
+					<td class="plan_dates">{{ plan.dates }}</td>
+				{% endfor %}
+			</tr>
+			<!-- END PLAN DATES -->
+
+
+			<!-- SERIES AND PLAN TITLES -->
+			{% if print_titles == true %}
+				<tr>
+					<td class="row_header"></td>
+					{% for plan in plans %}
+						<td>
+							<div class="series_title">{{ plan.series_title }}</div>
+							<div class="plan_title">{{ plan.plan_title }}</div>
+						</td>
+					{% endfor %}
+				</tr>
+			{% endif %}
+			<!-- END SERIES AND PLAN TITLES -->
+
+
+			<!-- NOTES -->
+			{% if print_plan_notes == true %}
+			
+			{% if all_plan_notes_categories == true %}
+				{% assign selected_notes_categories = plan_notes_categories %}
+			{% else %}
+				{% assign selected_notes_categories = my_plan_notes_categories %}
+			{% endif %}
+			
+				<tr>
+					<td class="section_header"></td>
+					{% for plan in plans %}
+						<td class="section_header">Notes</td>
+					{% endfor %}
+				</tr>
+				
+				{% for category in selected_notes_categories %}	
+					<tr>
+						<td class="row_header">{{ category }}</td>
+						{% for plan in plans %}
+							<td class="people">
+								{% for note in plan.notes %}
+									{% if note.category_name == category %}
+										<div class="person_name">{{ note.note }}</div>
+									{% endif %}
+								{% endfor %}
+							</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			{% endif %}
+			<!-- END NOTES -->
+
+			<!-- ORDER OF SERVICE -->
+			{% if print_order_of_service == true %}
+				<tr>
+					<td class="section_header"></td>
+					{% for plan in plans %}
+						<td class="section_header">Order Of Service</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td class="row_header"></td>
+					{% for plan in plans %}
+						<td class="songs">
+						{% for item in plan.items %}	
+							{% case item.item_type %}
+								{% when 'Song' %}<div class="song item" >
+								{% when 'Header' %}<div class="header item" >
+								{% when 'Media' %}<div class="media item" >
+								{% when 'Regular' %}<div class="item" >
+							{% endcase %}
+							{{ item.title }}</div>					
+						{% endfor %}
+						</td>
+					{% endfor %}
+				</tr>
+			{% endif %}
+			<!-- END ORDER OF SERVICE -->
+
+			<!-- SONGS -->
+			{% if print_song_section == true %}
+				<tr>
+					<td class="section_header"></td>
+					{% for plan in plans %}
+						<td class="section_header">Songs</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td class="row_header"></td>
+					{% for plan in plans %}
+						<td class="item">
+					        {% for item in plan.items %}
+								{% if item.item_type == 'Song' %}
+									<div class="item">{{ item.title }}</div>
+								{% endif %}
+							{% endfor %}
+						</td>
+					{% endfor %}
+				</tr>
+			{% endif %}
+			<!-- END SONGS -->
+
+			<!-- PLAN MEDIA -->
+			{% if print_media_section == true %}
+				<tr>
+					<td class="section_header"></td>
+					{% for plan in plans %}
+						<td class="section_header">Media</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td class="row_header"></td>
+					{% for plan in plans %}
+						<td class="item">
+						{% for item in plan.items %}
+							{% if item.item_type == 'Media' %}
+								<div class="item">{{ item.title }}</div>
+							{% endif %}
+						{% endfor %}
+						</td>
+					{% endfor %}
+				</tr>
+			{% endif %}
+			<!-- END PLAN MEDIA -->
+
+
+			<!-- PLAN ITEMS -->
+			{% if print_item_section == true %}
+				<tr>
+					<td class="section_header"></td>
+					{% for plan in plans %}
+						<td class="section_header">Items</td>
+					{% endfor %}
+				</tr>
+				<tr>
+					<td class="row_header"></td>
+					{% for plan in plans %}
+						<td class="item">
+						{% for item in plan.items %}
+							{% if item.item_type == 'Regular' %}
+								<div class="item">{{ item.title }}</div>
+							{% endif %}
+						{% endfor %}
+						</td>
+					{% endfor %}
+				</tr>
+			{% endif %}
+			<!-- END PLAN ITEMS -->
+
+
+            <!--  -->
+
+            <!-- Assign black array -->
+            {% assign roles = "" %}
+            {% if print_people == true %}
+                      
+            {% for selected_category in my_people_categories %}
+                {% for category in category_with_positions %}
+                
+                    {% if category.name == selected_category or category.name == selected_category.name %}
+                    <!-- In each person category - defined at top of file. Concat the roles at that service into the main array -->
+                    {% assign roles = roles | concat: category.positions %}
+                    {% endif %}
+						
+                {% endfor %}
+
+                
+						
+            {% endfor %}
+            <!-- Go through the array of all roles and extract the names of the roles -->
+            {% assign roles = roles | map: "name" | uniq %}
+            <!-- {% for position in roles %}
+            <tr>
+                <td class="section_header"></td>
+                    <td class="section_header">{{ position }}</td>
+            </tr>
+            {% endfor %} -->
+            {% endif %}
+            <!--  -->
+
+			<!-- PEOPLE -->
+             
+			{% if print_people == true %}
+	
+                {% assign selected_people_categories = my_people_categories %}
+                          
+				{% for selected_category in selected_people_categories %}
+                          	{% assign shouldStopForCategory = false %}
+					{% for category in category_with_positions %}
+					
+						{% if category.name == selected_category or category.name == selected_category.name %}
+
+                        <!-- {% assign my_array = category.positions | split: ", " %} -->
+
+                        <!-- {{ my_array | uniq | join: ", " }} -->
+								{% for position in roles %}
+									<tr>
+										<td class="row_header" ;>{{ position }}</td>
+										{% for plan in plans %}
+											<td class="people" style="background-color:#636363">
+												{% for plan_person in plan.plan_people_not_declined %}
+													{% if plan_person.position == position and plan_person.status == "C"%}
+														<div style="background-color:#ffffff;" class="person_name {% if plan_person.status == "U"%}unconfirmed{% endif %}{% if plan_person.status == "D" %} declined{% endif %}">{{ plan_person.person.name }}{% if plan_person.status == 'U' %}&nbsp;<span class="icon-question">?</span>{% endif %}</div>
+													{% endif %}
+												{% endfor %}
+											</td>
+                                      {% endfor %}
+									</tr>
+                          
+								{% endfor %}
+                          <!-- If we have printed the table for opened volunteers, stop executing any more statements -->
+                          {% assign shouldStopForCategory = true %}
+                       
+											
+						{% endif %}
+						
+					{% endfor %}
+                          {%if shouldStopForCategory == true %}
+                           {% continue %}
+                          {% endif %}
+				{% endfor %}	
+                          
+			{% endif %}
+			<!-- END PEOPLE -->
+		</table>
+	</body>
+</html>
