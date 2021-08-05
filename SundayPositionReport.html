@@ -83,157 +83,19 @@
 			<!-- END PLAN DATES -->
 
 
-			<!-- SERIES AND PLAN TITLES -->
-			{% if print_titles == true %}
-				<tr>
-					<td class="row_header"></td>
-					{% for plan in plans %}
-						<td>
-							<div class="series_title">{{ plan.series_title }}</div>
-							<div class="plan_title">{{ plan.plan_title }}</div>
-						</td>
-					{% endfor %}
-				</tr>
-			{% endif %}
-			<!-- END SERIES AND PLAN TITLES -->
+            <!-- DEBUG -->
+            for plan in r %}
+            <!-- <tr>
+                <td class="section_header"></td>
+                    <td class="section_header"><div>{{ plan.id }} {{ plan.ministry.name }} {{ plan.ministry }}</div></td>
+            </tr> -->
+             endfor %}
+            <!-- END DEBUG -->
 
+            <!-- SET UP ROLES ARRAY -->
 
-			<!-- NOTES -->
-			{% if print_plan_notes == true %}
-			
-			{% if all_plan_notes_categories == true %}
-				{% assign selected_notes_categories = plan_notes_categories %}
-			{% else %}
-				{% assign selected_notes_categories = my_plan_notes_categories %}
-			{% endif %}
-			
-				<tr>
-					<td class="section_header"></td>
-					{% for plan in plans %}
-						<td class="section_header">Notes</td>
-					{% endfor %}
-				</tr>
-				
-				{% for category in selected_notes_categories %}	
-					<tr>
-						<td class="row_header">{{ category }}</td>
-						{% for plan in plans %}
-							<td class="people">
-								{% for note in plan.notes %}
-									{% if note.category_name == category %}
-										<div class="person_name">{{ note.note }}</div>
-									{% endif %}
-								{% endfor %}
-							</td>
-						{% endfor %}
-					</tr>
-				{% endfor %}
-			{% endif %}
-			<!-- END NOTES -->
-
-			<!-- ORDER OF SERVICE -->
-			{% if print_order_of_service == true %}
-				<tr>
-					<td class="section_header"></td>
-					{% for plan in plans %}
-						<td class="section_header">Order Of Service</td>
-					{% endfor %}
-				</tr>
-				<tr>
-					<td class="row_header"></td>
-					{% for plan in plans %}
-						<td class="songs">
-						{% for item in plan.items %}	
-							{% case item.item_type %}
-								{% when 'Song' %}<div class="song item" >
-								{% when 'Header' %}<div class="header item" >
-								{% when 'Media' %}<div class="media item" >
-								{% when 'Regular' %}<div class="item" >
-							{% endcase %}
-							{{ item.title }}</div>					
-						{% endfor %}
-						</td>
-					{% endfor %}
-				</tr>
-			{% endif %}
-			<!-- END ORDER OF SERVICE -->
-
-			<!-- SONGS -->
-			{% if print_song_section == true %}
-				<tr>
-					<td class="section_header"></td>
-					{% for plan in plans %}
-						<td class="section_header">Songs</td>
-					{% endfor %}
-				</tr>
-				<tr>
-					<td class="row_header"></td>
-					{% for plan in plans %}
-						<td class="item">
-					        {% for item in plan.items %}
-								{% if item.item_type == 'Song' %}
-									<div class="item">{{ item.title }}</div>
-								{% endif %}
-							{% endfor %}
-						</td>
-					{% endfor %}
-				</tr>
-			{% endif %}
-			<!-- END SONGS -->
-
-			<!-- PLAN MEDIA -->
-			{% if print_media_section == true %}
-				<tr>
-					<td class="section_header"></td>
-					{% for plan in plans %}
-						<td class="section_header">Media</td>
-					{% endfor %}
-				</tr>
-				<tr>
-					<td class="row_header"></td>
-					{% for plan in plans %}
-						<td class="item">
-						{% for item in plan.items %}
-							{% if item.item_type == 'Media' %}
-								<div class="item">{{ item.title }}</div>
-							{% endif %}
-						{% endfor %}
-						</td>
-					{% endfor %}
-				</tr>
-			{% endif %}
-			<!-- END PLAN MEDIA -->
-
-
-			<!-- PLAN ITEMS -->
-			{% if print_item_section == true %}
-				<tr>
-					<td class="section_header"></td>
-					{% for plan in plans %}
-						<td class="section_header">Items</td>
-					{% endfor %}
-				</tr>
-				<tr>
-					<td class="row_header"></td>
-					{% for plan in plans %}
-						<td class="item">
-						{% for item in plan.items %}
-							{% if item.item_type == 'Regular' %}
-								<div class="item">{{ item.title }}</div>
-							{% endif %}
-						{% endfor %}
-						</td>
-					{% endfor %}
-				</tr>
-			{% endif %}
-			<!-- END PLAN ITEMS -->
-
-
-            <!--  -->
-
-            <!-- Assign black array -->
+            <!-- Assign blank array -->
             {% assign roles = "" %}
-            {% if print_people == true %}
                       
             {% for selected_category in my_people_categories %}
                 {% for category in category_with_positions %}
@@ -250,58 +112,26 @@
             {% endfor %}
             <!-- Go through the array of all roles and extract the names of the roles -->
             {% assign roles = roles | map: "name" | uniq %}
-            <!-- {% for position in roles %}
-            <tr>
-                <td class="section_header"></td>
-                    <td class="section_header">{{ position }}</td>
-            </tr>
-            {% endfor %} -->
-            {% endif %}
-            <!--  -->
+
+            {% assign r = plans | sort_natural: "ministry.name" %}
+            <!-- END SET UP ROLES ARRAY  -->
 
 			<!-- PEOPLE -->
-             
-			{% if print_people == true %}
-	
-                {% assign selected_people_categories = my_people_categories %}
-                          
-				{% for selected_category in selected_people_categories %}
-                          	{% assign shouldStopForCategory = false %}
-					{% for category in category_with_positions %}
-					
-						{% if category.name == selected_category or category.name == selected_category.name %}
-
-                        <!-- {% assign my_array = category.positions | split: ", " %} -->
-
-                        <!-- {{ my_array | uniq | join: ", " }} -->
-								{% for position in roles %}
-									<tr>
-										<td class="row_header" ;>{{ position }}</td>
-										{% for plan in plans %}
-											<td class="people" style="background-color:#636363">
-												{% for plan_person in plan.plan_people_not_declined %}
-													{% if plan_person.position == position and plan_person.status == "C"%}
-														<div style="background-color:#ffffff;" class="person_name {% if plan_person.status == "U"%}unconfirmed{% endif %}{% if plan_person.status == "D" %} declined{% endif %}">{{ plan_person.person.name }}{% if plan_person.status == 'U' %}&nbsp;<span class="icon-question">?</span>{% endif %}</div>
-													{% endif %}
-												{% endfor %}
-											</td>
-                                      {% endfor %}
-									</tr>
-                          
-								{% endfor %}
-                          <!-- If we have printed the table for opened volunteers, stop executing any more statements -->
-                          {% assign shouldStopForCategory = true %}
-                       
-											
-						{% endif %}
-						
-					{% endfor %}
-                          {%if shouldStopForCategory == true %}
-                           {% continue %}
-                          {% endif %}
-				{% endfor %}	
-                          
-			{% endif %}
+            {% for position in roles %}
+                <tr>
+                    <td class="row_header" ;>{{ position }}</td>
+                    {% for plan in plans %}
+                        <td class="people" style="background-color:#636363">
+                            {% for plan_person in plan.plan_people_not_declined %}
+                                {% if plan_person.position == position and plan_person.status == "C"%}
+                                    <div style="background-color:#ffffff;" class="person_name {% if plan_person.status == "U"%}unconfirmed{% endif %}{% if plan_person.status == "D" %} declined{% endif %}">{{ plan_person.person.name }}{% if plan_person.status == 'U' %}&nbsp;<span class="icon-question">?</span>{% endif %}</div>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                    {% endfor %}
+                </tr>
+        
+            {% endfor %}
 			<!-- END PEOPLE -->
 		</table>
 	</body>
